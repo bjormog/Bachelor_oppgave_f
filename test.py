@@ -1,14 +1,17 @@
 
-from PyQt5 import QtWidgets,QtCore, uic
+import traceback
+from PyQt5 import QtWidgets,QtCore,QtGui, uic
+from pandas import Interval
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 import sys  # We need sys so that we can pass argv to QApplication
 from PyQt5.QtCore import QTimer,QDateTime
+
+import sys
 import os
 import threading 
 import time
-
-
+import psutil
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -21,24 +24,38 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.pushButton_2.clicked.connect(self.ploting)
         self.pushButton_3.clicked.connect(self.reset_action)
+        
+        
+        self.graphicsView.setYRange(max = 10,min = 0)
+        self.graphicsView_2.setYRange(max = 10,min = 0)
+        self.data_list = []
+        
 
         
 
     def ploting(self):
-        self.counter = 0
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(1000)
+        self.timer = QtCore.QTimer(self)
+        #self.timer.setInterval(1000)
         self.timer.timeout.connect(self.update_plot_data)
-        self.timer.start(0)
+        self.timer.start(1000)
         
 
     def update_plot_data(self):
-        
-        for i in range(10):
-                       
-            x = [i]
-            y = [i]
-            self.graphicsView.plot(x,y)
+        try:
+            cpu = "%0.2f" % psutil.cpu_percent(1)
+            self.data_list.append(float(cpu))
+            print(float(cpu))
+            self.graphicsView.plot().setData(self.data_list,pen='g')
+            self.graphicsView_2.plot().setData(self.data_list,pen='g')
+        except Exception as e:
+            print(traceback.print_exc())
+
+
+        #for i in range(10):
+                                   
+            #x = [i]
+            #y = [i]
+            #self.graphicsView.plot(x,y)
         #self.graphicsView_2.plot(x,y)
         
 
